@@ -1,0 +1,108 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #0a0a0a;
+  color: #00d4ff;
+  font-family: monospace;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+h1 {
+  text-align: center;
+  letter-spacing: 10px;
+  font-size: 32px;
+}
+
+.messages {
+  height: 400px;
+  overflow-y: auto;
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.msg {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  max-width: 80%;
+}
+
+.msg.user {
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.2);
+  align-self: flex-end;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(0,212,255,0.3);
+  color: #00d4ff;
+  padding: 10px;
+  font-family: monospace;
+  font-size: 13px;
+  outline: none;
+  border-radius: 4px;
+}
+
+button {
+  background: transparent;
+  border: 1px solid rgba(0,212,255,0.4);
+  color: #00d4ff;
+  padding: 10px 20px;
+  font-family: monospace;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+button:hover {
+  background: rgba(0,212,255,0.1);
+}
+
+.camera {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.video {
+  width: 100%;
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 4px;
+}
+
+.cam-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.msg.emo {
+  background: rgba(255, 200, 0, 0.05);
+  border: 1px solid rgba(255, 200, 0, 0.15);
+  color: rgba(255, 220, 100, 0.9);
+  align-self: flex-start;
+}
