@@ -1,6 +1,6 @@
-import { useRef, useState } from "react"
+import { useRef, useState, useImperativeHandle, forwardRef } from "react"
 
-function Camera({ onCapture }) {
+const Camera = forwardRef(function Camera({ onCapture }, ref) {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const [active, setActive] = useState(false)
@@ -13,6 +13,7 @@ function Camera({ onCapture }) {
   }
 
   function captureFrame() {
+    if (!active) return null
     const video = videoRef.current
     const canvas = canvasRef.current
     canvas.width = video.videoWidth
@@ -20,7 +21,10 @@ function Camera({ onCapture }) {
     canvas.getContext("2d").drawImage(video, 0, 0)
     const base64 = canvas.toDataURL("image/jpeg", 0.75).split(",")[1]
     onCapture(base64)
+    return base64
   }
+
+  useImperativeHandle(ref, () => ({ captureFrame }))
 
   return (
     <div className="camera">
@@ -29,11 +33,11 @@ function Camera({ onCapture }) {
       <div className="cam-btns">
         {!active
           ? <button onClick={startCamera}>Start Camera</button>
-          : <button onClick={captureFrame}>Capture Frame</button>
+          : <span style={{ fontSize: "11px", color: "rgba(0,212,255,0.4)" }}>📷 Camera active — auto captures on send</span>
         }
       </div>
     </div>
   )
-}
+})
 
 export default Camera

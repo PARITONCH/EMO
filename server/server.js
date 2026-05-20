@@ -9,20 +9,33 @@ app.use(cors())
 app.use(express.json({ limit: "10mb" }))
 
 app.post("/api/chat", async (req, res) => {
-  const { message, imageBase64 } = req.body
+  const { message, imageBase64, history } = req.body
 
-  const parts = []
+  // Build conversation history for Gemini
+  const contents = []
 
+  // Add past messages
+  if (history && history.length > 0) {
+    history.forEach(msg => {
+      contents.push({
+        role: msg.role === "user" ? "user" : "model",
+        parts: [{ text: msg.text }]
+      })
+    })
+  }
+
+  // Add current message with optional image
+  const currentParts = []
   if (imageBase64) {
-    parts.push({
+    currentParts.push({
       inlineData: {
         mimeType: "image/jpeg",
         data: imageBase64
       }
     })
   }
-
-  parts.push({ text: message })
+  currentParts.push({ text: message })
+  contents.push({ role: "user", parts: currentParts })
 
   try {
     const response = await fetch(
@@ -31,20 +44,23 @@ app.post("/api/chat", async (req, res) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts }],
+          contents,
           systemInstruction: {
             parts: [{
-              text: "You are EMO — a friendly, emotionally intelligent AI companion. Be concise, warm and witty."
+              text: "You are EMO — a friendly, emotionally intelligent AI companion. Be concise, warm and witty. Keep replies short — 1 to 3 sentences max."
             }]
           }
         })
       }
     )
 
-    const data = await response.json()
-    if (!response.ok || data.error) {
-      console.error("Gemini API Error:", data.error || data);
+    if (!response.ok) {
+      const err = await response.json()
+      console.error("Gemini API Error:", err.error)
+      return res.status(500).json({ reply: "Something went wrong." })
     }
+
+    const data = await response.json()
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "..."
     res.json({ reply })
 
@@ -54,6 +70,6 @@ app.post("/api/chat", async (req, res) => {
   }
 })
 
-app.listen(process.env.PORT, () => {
-  console.log(`EMO server running on port ${process.env.PORT}`)
+app.listen(process.env.PORT || 5000, () => {
+  console.log(`EMO server running on port ${process.env.PORT || 5000}`)
 })

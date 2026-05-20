@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Camera from "./Camera"
 import { useVoice } from "./useVoice"
 
@@ -7,10 +7,7 @@ function App() {
   const [input, setInput] = useState("")
   const [frame, setFrame] = useState(null)
   const [loading, setLoading] = useState(false)
-
-  const { listening, startListening } = useVoice((text) => {
-    setInput(text)
-  })
+  const cameraRef = useRef(null)
 
   function speak(text) {
     const utterance = new SpeechSynthesisUtterance(text)
@@ -20,10 +17,18 @@ function App() {
     window.speechSynthesis.speak(utterance)
   }
 
-  async function sendMessage() {
-    if (!input.trim() || loading) return
+  async function sendMessage(voiceText) {
+    const textToSend = voiceText || input
+    if (!textToSend.trim() || loading) return
 
-    const userMsg = { role: "user", text: input }
+    // Auto capture camera frame before sending
+    let currentFrame = frame
+    if (cameraRef.current) {
+      cameraRef.current.captureFrame()
+      currentFrame = frame
+    }
+
+    const userMsg = { role: "user", text: textToSend }
     setMessages(prev => [...prev, userMsg])
     setInput("")
     setLoading(true)
@@ -33,8 +38,9 @@ function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: input,
-          imageBase64: frame
+          message: textToSend,
+          imageBase64: currentFrame,
+          history: messages
         })
       })
 
@@ -50,6 +56,11 @@ function App() {
     }
   }
 
+  const { listening, startListening } = useVoice((text) => {
+    setInput(text)
+    setTimeout(() => sendMessage(text), 100)
+  })
+
   function handleCapture(base64) {
     setFrame(base64)
   }
@@ -58,13 +69,7 @@ function App() {
     <div className="container">
       <h1>EMO</h1>
 
-      <Camera onCapture={handleCapture} />
-
-      {frame && (
-        <div style={{ fontSize: "11px", color: "rgba(0,212,255,0.4)" }}>
-          ✓ Frame ready — will be sent with next message
-        </div>
-      )}
+      <Camera ref={cameraRef} onCapture={handleCapture} />
 
       <div className="messages">
         {messages.length === 0 && (
@@ -95,10 +100,10 @@ function App() {
           placeholder="Talk to EMO..."
           disabled={loading}
         />
-        <button onClick={sendMessage} disabled={loading}>
+        <button onClick={() => sendMessage()} disabled={loading}>
           {loading ? "..." : "Send"}
         </button>
-        <button onClick={startListening}>
+        <button onClick={startListening} disabled={loading}>
           {listening ? "🔴 Listening..." : "🎤 Speak"}
         </button>
       </div>
