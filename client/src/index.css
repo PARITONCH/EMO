@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap');
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,87 +7,41 @@
 }
 
 body {
-  background: #0a0a0a;
+  background: #020408;
   color: #00d4ff;
-  font-family: monospace;
+  font-family: 'Rajdhani', monospace;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
 }
 
 .container {
-  width: 500px;
+  width: 100%;
+  max-width: 480px;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  padding: 20px 16px;
 }
 
 h1 {
   text-align: center;
-  letter-spacing: 10px;
-  font-size: 32px;
-}
-
-.messages {
-  height: 400px;
-  overflow-y: auto;
-  border: 1px solid rgba(0,212,255,0.2);
-  border-radius: 4px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.msg {
-  padding: 8px 12px;
-  border-radius: 4px;
-  font-size: 13px;
-  max-width: 80%;
-}
-
-.msg.user {
-  background: rgba(0,212,255,0.1);
-  border: 1px solid rgba(0,212,255,0.2);
-  align-self: flex-end;
-}
-
-.input-row {
-  display: flex;
-  gap: 8px;
-}
-
-input {
-  flex: 1;
-  background: transparent;
-  border: 1px solid rgba(0,212,255,0.3);
+  letter-spacing: 16px;
+  font-size: 36px;
+  font-weight: 700;
   color: #00d4ff;
-  padding: 10px;
-  font-family: monospace;
-  font-size: 13px;
-  outline: none;
-  border-radius: 4px;
+  text-shadow: 0 0 20px rgba(0,212,255,0.5);
+  padding: 8px 0;
 }
 
-button {
-  background: transparent;
-  border: 1px solid rgba(0,212,255,0.4);
-  color: #00d4ff;
-  padding: 10px 20px;
-  font-family: monospace;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-button:hover {
-  background: rgba(0,212,255,0.1);
-}
-
+/* Camera */
 .camera {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
 }
 
@@ -93,6 +49,8 @@ button:hover {
   width: 100%;
   border: 1px solid rgba(0,212,255,0.2);
   border-radius: 4px;
+  max-height: 180px;
+  object-fit: cover;
 }
 
 .cam-btns {
@@ -100,9 +58,111 @@ button:hover {
   gap: 8px;
 }
 
+/* Messages */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  border: 1px solid rgba(0,212,255,0.15);
+  border-radius: 4px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0,20,35,0.5);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,212,255,0.2) transparent;
+}
+
+.msg {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  max-width: 85%;
+  line-height: 1.5;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg.user {
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.2);
+  color: rgba(0,212,255,0.9);
+  align-self: flex-end;
+}
+
 .msg.emo {
-  background: rgba(255, 200, 0, 0.05);
-  border: 1px solid rgba(255, 200, 0, 0.15);
-  color: rgba(255, 220, 100, 0.9);
+  background: rgba(255,200,0,0.05);
+  border: 1px solid rgba(255,200,0,0.15);
+  color: rgba(255,220,100,0.9);
   align-self: flex-start;
+}
+
+/* Input */
+.input-row {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+input {
+  flex: 1;
+  background: rgba(0,212,255,0.04);
+  border: 1px solid rgba(0,212,255,0.2);
+  color: #00d4ff;
+  padding: 10px 14px;
+  font-family: 'Rajdhani', monospace;
+  font-size: 14px;
+  outline: none;
+  border-radius: 4px;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  border-color: rgba(0,212,255,0.5);
+}
+
+input::placeholder {
+  color: rgba(0,212,255,0.2);
+}
+
+button {
+  background: rgba(0,212,255,0.06);
+  border: 1px solid rgba(0,212,255,0.3);
+  color: #00d4ff;
+  padding: 10px 16px;
+  font-family: 'Rajdhani', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled) {
+  background: rgba(0,212,255,0.15);
+  border-color: rgba(0,212,255,0.6);
+  box-shadow: 0 0 12px rgba(0,212,255,0.2);
+}
+
+button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Scrollbar */
+.messages::-webkit-scrollbar {
+  width: 4px;
+}
+.messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+.messages::-webkit-scrollbar-thumb {
+  background: rgba(0,212,255,0.2);
+  border-radius: 2px;
 }
