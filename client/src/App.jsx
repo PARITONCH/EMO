@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react"
 import Camera from "./Camera"
 import { useVoice } from "./useVoice"
 
+const SESSION_ID = "user_" + Math.random().toString(36).substr(2, 9)
+
 function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState("")
@@ -62,7 +64,8 @@ function App() {
         body: JSON.stringify({
           message: textToSend,
           imageBase64: capturedFrame,
-          history: messages
+          history: messages,
+          sessionId: SESSION_ID
         })
       })
 
