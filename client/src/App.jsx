@@ -7,7 +7,8 @@ function App() {
   const [input, setInput] = useState("")
   const [frame, setFrame] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [currentWord, setCurrentWord] = useState("")
+  const [speakingIndex, setSpeakingIndex] = useState(-1)
+  const [speakingWord, setSpeakingWord] = useState("")
   const cameraRef = useRef(null)
   const messagesEndRef = useRef(null)
 
@@ -15,7 +16,7 @@ function App() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages, loading])
 
-  function speak(text) {
+  function speak(text, msgIndex) {
     const words = text.split(" ")
     let wordIndex = 0
 
@@ -26,13 +27,15 @@ function App() {
 
     utterance.onboundary = (e) => {
       if (e.name === "word") {
+        setSpeakingIndex(msgIndex)
+        setSpeakingWord(words[wordIndex])
         wordIndex++
-        setCurrentWord(words[wordIndex - 1])
       }
     }
 
     utterance.onend = () => {
-      setCurrentWord("")
+      setSpeakingIndex(-1)
+      setSpeakingWord("")
     }
 
     window.speechSynthesis.speak(utterance)
@@ -42,10 +45,9 @@ function App() {
     const textToSend = voiceText || input
     if (!textToSend.trim() || loading) return
 
-    let currentFrame = frame
+    let capturedFrame = null
     if (cameraRef.current) {
-      cameraRef.current.captureFrame()
-      currentFrame = frame
+      capturedFrame = cameraRef.current.captureFrame()
     }
 
     const userMsg = { role: "user", text: textToSend }
@@ -59,15 +61,16 @@ function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: textToSend,
-          imageBase64: currentFrame,
+          imageBase64: capturedFrame,
           history: messages
         })
       })
 
       const data = await res.json()
       const reply = data.reply
+      const newIndex = messages.length + 1
       setMessages(prev => [...prev, { role: "emo", text: reply }])
-      speak(reply)
+      speak(reply, newIndex)
     } catch (err) {
       setMessages(prev => [...prev, { role: "emo", text: "Connection error." }])
     } finally {
@@ -89,21 +92,6 @@ function App() {
     <div className="container">
       <h1>EMO</h1>
 
-      {currentWord && (
-        <div style={{
-          textAlign: "center",
-          fontSize: "28px",
-          fontWeight: "700",
-          color: "#00d4ff",
-          letterSpacing: "4px",
-          textShadow: "0 0 20px rgba(0,212,255,0.8)",
-          animation: "fadeIn 0.1s ease",
-          minHeight: "40px"
-        }}>
-          {currentWord}
-        </div>
-      )}
-
       <Camera ref={cameraRef} onCapture={handleCapture} />
 
       <div className="messages">
@@ -117,7 +105,26 @@ function App() {
             <div style={{ fontSize: "10px", opacity: 0.4, marginBottom: "4px" }}>
               {msg.role === "user" ? "YOU" : "EMO"}
             </div>
-            {msg.text}
+            <div>
+              {msg.role === "emo" && speakingIndex === i
+                ? msg.text.split(" ").map((word, wi) => (
+                    <span
+                      key={wi}
+                      style={{
+                        color: word === speakingWord ? "#ffffff" : "inherit",
+                        textShadow: word === speakingWord
+                          ? "0 0 12px rgba(255,220,100,1)"
+                          : "none",
+                        fontWeight: word === speakingWord ? "700" : "inherit",
+                        transition: "all 0.1s ease"
+                      }}
+                    >
+                      {word}{" "}
+                    </span>
+                  ))
+                : msg.text
+              }
+            </div>
           </div>
         ))}
         {loading && (
