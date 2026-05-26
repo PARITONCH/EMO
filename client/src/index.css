@@ -166,3 +166,37 @@ button:disabled {
   background: rgba(0,212,255,0.2);
   border-radius: 2px;
 }
+
+.file-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  padding: 7px 14px;
+  border: 1px solid rgba(0,212,255,0.3);
+  border-radius: 4px;
+  color: #00d4ff;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.file-label:hover {
+  background: rgba(0,212,255,0.1);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(0,212,255,0.5);
+  padding: 4px 8px;
+  border: 1px solid rgba(0,212,255,0.1);
+  border-radius: 4px;
+}

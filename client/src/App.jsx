@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import Camera from "./Camera"
+import FileUpload from "./FileUpload"
 import { useVoice } from "./useVoice"
 
 const SESSION_ID = "user_" + Math.random().toString(36).substr(2, 9)
@@ -11,6 +12,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [speakingIndex, setSpeakingIndex] = useState(-1)
   const [speakingWord, setSpeakingWord] = useState("")
+  const [uploadedFile, setUploadedFile] = useState(null)
   const cameraRef = useRef(null)
   const messagesEndRef = useRef(null)
 
@@ -47,6 +49,43 @@ function App() {
     const textToSend = voiceText || input
     if (!textToSend.trim() || loading) return
 
+    setLoading(true)
+    setInput("")
+
+    // If file uploaded — use upload route
+    if (uploadedFile) {
+      const userMsg = { role: "user", text: `📎 ${uploadedFile.name}: ${textToSend}` }
+      setMessages(prev => [...prev, userMsg])
+
+      try {
+        const res = await fetch("http://localhost:5000/api/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            base64: uploadedFile.base64,
+            type: uploadedFile.type,
+            mimeType: uploadedFile.mimeType,
+            name: uploadedFile.name,
+            question: textToSend,
+            sessionId: SESSION_ID
+          })
+        })
+
+        const data = await res.json()
+        const reply = data.reply
+        const newIndex = messages.length + 1
+        setMessages(prev => [...prev, { role: "emo", text: reply }])
+        speak(reply, newIndex)
+        setUploadedFile(null)
+      } catch (err) {
+        setMessages(prev => [...prev, { role: "emo", text: "Connection error." }])
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
+
+    // Normal message with camera
     let capturedFrame = null
     if (cameraRef.current) {
       capturedFrame = cameraRef.current.captureFrame()
@@ -54,8 +93,6 @@ function App() {
 
     const userMsg = { role: "user", text: textToSend }
     setMessages(prev => [...prev, userMsg])
-    setInput("")
-    setLoading(true)
 
     try {
       const res = await fetch("http://localhost:5000/api/chat", {
@@ -96,6 +133,8 @@ function App() {
       <h1>EMO</h1>
 
       <Camera ref={cameraRef} onCapture={handleCapture} />
+
+      <FileUpload onFileSelect={setUploadedFile} />
 
       <div className="messages">
         {messages.length === 0 && (
@@ -143,7 +182,7 @@ function App() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          placeholder="Talk to EMO..."
+          placeholder={uploadedFile ? "Ask about the file..." : "Talk to EMO..."}
           disabled={loading}
         />
         <button onClick={() => sendMessage()} disabled={loading}>
