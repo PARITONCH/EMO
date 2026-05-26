@@ -10,17 +10,16 @@ body {
   background: #020408;
   color: #00d4ff;
   font-family: 'Rajdhani', monospace;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  align-items: flex-start;
+  padding: 20px 0;
 }
 
 .container {
   width: 100%;
-  max-width: 480px;
-  height: 100vh;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -60,7 +59,6 @@ h1 {
 
 /* Messages */
 .messages {
-  flex: 1;
   overflow-y: auto;
   border: 1px solid rgba(0,212,255,0.15);
   border-radius: 4px;
@@ -71,6 +69,10 @@ h1 {
   background: rgba(0,20,35,0.5);
   scrollbar-width: thin;
   scrollbar-color: rgba(0,212,255,0.2) transparent;
+  resize: vertical;
+  min-height: 200px;
+  max-height: 600px;
+  overflow: auto;
 }
 
 .msg {
@@ -155,18 +157,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Scrollbar */
-.messages::-webkit-scrollbar {
-  width: 4px;
-}
-.messages::-webkit-scrollbar-track {
-  background: transparent;
-}
-.messages::-webkit-scrollbar-thumb {
-  background: rgba(0,212,255,0.2);
-  border-radius: 2px;
-}
-
+/* File upload */
 .file-upload {
   display: flex;
   flex-direction: column;
@@ -199,4 +190,16 @@ button:disabled {
   padding: 4px 8px;
   border: 1px solid rgba(0,212,255,0.1);
   border-radius: 4px;
+}
+
+/* Scrollbar */
+.messages::-webkit-scrollbar {
+  width: 4px;
+}
+.messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+.messages::-webkit-scrollbar-thumb {
+  background: rgba(0,212,255,0.2);
+  border-radius: 2px;
 }

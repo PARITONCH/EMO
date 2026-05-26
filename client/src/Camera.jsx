@@ -39,7 +39,14 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
 
   return (
     <div className="camera">
-      <video ref={videoRef} className="video" muted />
+      {active && (
+        <>
+          <video ref={videoRef} className="video" muted />
+          <div style={{ fontSize: "11px", color: "rgba(0,212,255,0.3)", textAlign: "center" }}>
+            ● Camera active — frame sent with every message
+          </div>
+        </>
+      )}
       <canvas ref={canvasRef} style={{ display: "none" }} />
       <div className="cam-btns">
         {!active
@@ -47,11 +54,6 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
           : <button onClick={stopCamera} style={{ borderColor: "rgba(255,60,80,0.4)", color: "#ff4455" }}>■ Stop Camera</button>
         }
       </div>
-      {active && (
-        <div style={{ fontSize: "11px", color: "rgba(0,212,255,0.3)", textAlign: "center" }}>
-          ● Camera active — frame sent with every message
-        </div>
-      )}
     </div>
   )
 })
