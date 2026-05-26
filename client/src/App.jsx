@@ -4,6 +4,7 @@ import FileUpload from "./FileUpload"
 import { useVoice } from "./useVoice"
 
 const SESSION_ID = "user_" + Math.random().toString(36).substr(2, 9)
+const API_URL = "https://emo-server-yadc.onrender.com"
 
 function App() {
   const [messages, setMessages] = useState([])
@@ -52,13 +53,12 @@ function App() {
     setLoading(true)
     setInput("")
 
-    // If file uploaded — use upload route
     if (uploadedFile) {
       const userMsg = { role: "user", text: `📎 ${uploadedFile.name}: ${textToSend}` }
       setMessages(prev => [...prev, userMsg])
 
       try {
-        const res = await fetch("http://localhost:5000/api/upload", {
+        const res = await fetch(`${API_URL}/api/upload`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -85,7 +85,6 @@ function App() {
       return
     }
 
-    // Normal message with camera
     let capturedFrame = null
     if (cameraRef.current) {
       capturedFrame = cameraRef.current.captureFrame()
@@ -95,7 +94,7 @@ function App() {
     setMessages(prev => [...prev, userMsg])
 
     try {
-      const res = await fetch("http://localhost:5000/api/chat", {
+      const res = await fetch(`${API_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
