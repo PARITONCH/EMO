@@ -7,20 +7,31 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
   const streamRef = useRef(null)
 
   async function startCamera() {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true })
-    streamRef.current = stream
-    videoRef.current.srcObject = stream
-    videoRef.current.play()
-    setActive(true)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+      streamRef.current = stream
+      setActive(true)
+      // Wait for state + DOM update then attach stream
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          videoRef.current.play()
+        }
+      }, 100)
+    } catch (err) {
+      console.error("Camera error:", err)
+    }
   }
 
   function stopCamera() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop())
       streamRef.current = null
-      videoRef.current.srcObject = null
-      setActive(false)
     }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null
+    }
+    setActive(false)
   }
 
   function captureFrame() {
@@ -39,15 +50,21 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
 
   return (
     <div className="camera">
-      {active && (
-        <>
-          <video ref={videoRef} className="video" muted />
-          <div style={{ fontSize: "11px", color: "rgba(0,212,255,0.3)", textAlign: "center" }}>
-            ● Camera active — frame sent with every message
-          </div>
-        </>
-      )}
+      <video
+        ref={videoRef}
+        className="video"
+        muted
+        playsInline
+        style={{ display: active ? "block" : "none" }}
+      />
       <canvas ref={canvasRef} style={{ display: "none" }} />
+
+      {active && (
+        <div style={{ fontSize: "11px", color: "rgba(0,212,255,0.3)", textAlign: "center" }}>
+          ● Camera active — frame sent with every message
+        </div>
+      )}
+
       <div className="cam-btns">
         {!active
           ? <button onClick={startCamera}>📷 Start Camera</button>
