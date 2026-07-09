@@ -4,14 +4,15 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const [active, setActive] = useState(false)
+  const [mode, setMode] = useState("") // "camera" or "screen"
   const streamRef = useRef(null)
 
   async function startCamera() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ video: true })
       streamRef.current = stream
+      setMode("camera")
       setActive(true)
-      // Wait for state + DOM update then attach stream
       setTimeout(() => {
         if (videoRef.current) {
           videoRef.current.srcObject = stream
@@ -23,7 +24,32 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
     }
   }
 
-  function stopCamera() {
+  async function startScreen() {
+    try {
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: "always" },
+        audio: false
+      })
+      streamRef.current = stream
+      setMode("screen")
+      setActive(true)
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          videoRef.current.play()
+        }
+      }, 100)
+
+      // Auto stop when user clicks "Stop sharing" in browser UI
+      stream.getVideoTracks()[0].onended = () => {
+        stop()
+      }
+    } catch (err) {
+      console.error("Screen share error:", err)
+    }
+  }
+
+  function stop() {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop())
       streamRef.current = null
@@ -32,6 +58,7 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
       videoRef.current.srcObject = null
     }
     setActive(false)
+    setMode("")
   }
 
   function captureFrame() {
@@ -61,15 +88,21 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
 
       {active && (
         <div style={{ fontSize: "11px", color: "rgba(0,212,255,0.3)", textAlign: "center" }}>
-          ● Camera active — frame sent with every message
+          {mode === "camera" ? "● Camera active" : "● Screen sharing active"} — frame sent with every message
         </div>
       )}
 
       <div className="cam-btns">
-        {!active
-          ? <button onClick={startCamera}>📷 Start Camera</button>
-          : <button onClick={stopCamera} style={{ borderColor: "rgba(255,60,80,0.4)", color: "#ff4455" }}>■ Stop Camera</button>
-        }
+        {!active ? (
+          <>
+            <button onClick={startCamera}>📷 Camera</button>
+            <button onClick={startScreen}>🖥️ Share Screen</button>
+          </>
+        ) : (
+          <button onClick={stop} style={{ borderColor: "rgba(255,60,80,0.4)", color: "#ff4455" }}>
+            ■ Stop {mode === "camera" ? "Camera" : "Screen"}
+          </button>
+        )}
       </div>
     </div>
   )
