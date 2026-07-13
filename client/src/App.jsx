@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react"
 import Camera from "./Camera"
 import FileUpload from "./FileUpload"
+import PiP from "./PiP"
 import { useVoice } from "./useVoice"
 
 const SESSION_ID = "user_" + Math.random().toString(36).substr(2, 9)
@@ -24,12 +25,10 @@ function App() {
   function speak(text, msgIndex) {
     const words = text.split(" ")
     let wordIndex = 0
-
     const utterance = new SpeechSynthesisUtterance(text)
     utterance.rate = 1
     utterance.pitch = 1
     utterance.volume = 1
-
     utterance.onboundary = (e) => {
       if (e.name === "word") {
         setSpeakingIndex(msgIndex)
@@ -37,12 +36,10 @@ function App() {
         wordIndex++
       }
     }
-
     utterance.onend = () => {
       setSpeakingIndex(-1)
       setSpeakingWord("")
     }
-
     window.speechSynthesis.speak(utterance)
   }
 
@@ -70,7 +67,6 @@ function App() {
             sessionId: SESSION_ID
           })
         })
-
         const data = await res.json()
         const reply = data.reply
         const newIndex = messages.length + 1
@@ -104,7 +100,6 @@ function App() {
           sessionId: SESSION_ID
         })
       })
-
       const data = await res.json()
       const reply = data.reply
       const newIndex = messages.length + 1
@@ -135,6 +130,12 @@ function App() {
 
       <FileUpload onFileSelect={setUploadedFile} />
 
+      <PiP
+        onSend={sendMessage}
+        messages={messages}
+        loading={loading}
+      />
+
       <div className="messages">
         {messages.length === 0 && (
           <div style={{ color: "rgba(0,212,255,0.2)", textAlign: "center", marginTop: "40px" }}>
@@ -149,17 +150,12 @@ function App() {
             <div>
               {msg.role === "emo" && speakingIndex === i
                 ? msg.text.split(" ").map((word, wi) => (
-                    <span
-                      key={wi}
-                      style={{
-                        color: word === speakingWord ? "#ffffff" : "inherit",
-                        textShadow: word === speakingWord
-                          ? "0 0 12px rgba(255,220,100,1)"
-                          : "none",
-                        fontWeight: word === speakingWord ? "700" : "inherit",
-                        transition: "all 0.1s ease"
-                      }}
-                    >
+                    <span key={wi} style={{
+                      color: word === speakingWord ? "#ffffff" : "inherit",
+                      textShadow: word === speakingWord ? "0 0 12px rgba(255,220,100,1)" : "none",
+                      fontWeight: word === speakingWord ? "700" : "inherit",
+                      transition: "all 0.1s ease"
+                    }}>
                       {word}{" "}
                     </span>
                   ))
