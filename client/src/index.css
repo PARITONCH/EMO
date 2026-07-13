@@ -14,7 +14,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 20px 0;
+  padding: 12px 0;
 }
 
 .container {
@@ -22,18 +22,18 @@ body {
   max-width: 520px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 20px 16px;
+  gap: 10px;
+  padding: 16px 12px;
 }
 
 h1 {
   text-align: center;
-  letter-spacing: 16px;
-  font-size: 36px;
+  letter-spacing: 12px;
+  font-size: clamp(24px, 8vw, 36px);
   font-weight: 700;
   color: #00d4ff;
   text-shadow: 0 0 20px rgba(0,212,255,0.5);
-  padding: 8px 0;
+  padding: 6px 0;
 }
 
 /* Camera */
@@ -48,13 +48,21 @@ h1 {
   width: 100%;
   border: 1px solid rgba(0,212,255,0.2);
   border-radius: 4px;
-  max-height: 180px;
+  max-height: 220px;
   object-fit: cover;
 }
 
 .cam-btns {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.cam-btns button {
+  flex: 1;
+  min-width: 120px;
 }
 
 /* Messages */
@@ -62,7 +70,7 @@ h1 {
   overflow-y: auto;
   border: 1px solid rgba(0,212,255,0.15);
   border-radius: 4px;
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -71,17 +79,18 @@ h1 {
   scrollbar-color: rgba(0,212,255,0.2) transparent;
   resize: vertical;
   min-height: 200px;
-  max-height: 600px;
+  max-height: 50vh;
   overflow: auto;
 }
 
 .msg {
   padding: 8px 12px;
   border-radius: 4px;
-  font-size: 14px;
-  max-width: 85%;
+  font-size: clamp(12px, 3.5vw, 14px);
+  max-width: 88%;
   line-height: 1.5;
   animation: fadeIn 0.3s ease;
+  word-break: break-word;
 }
 
 @keyframes fadeIn {
@@ -106,18 +115,20 @@ h1 {
 /* Input */
 .input-row {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   padding: 4px 0;
+  flex-wrap: wrap;
 }
 
 input {
   flex: 1;
+  min-width: 0;
   background: rgba(0,212,255,0.04);
   border: 1px solid rgba(0,212,255,0.2);
   color: #00d4ff;
-  padding: 10px 14px;
+  padding: 10px 12px;
   font-family: 'Rajdhani', monospace;
-  font-size: 14px;
+  font-size: clamp(13px, 3.5vw, 14px);
   outline: none;
   border-radius: 4px;
   transition: border-color 0.2s;
@@ -135,15 +146,16 @@ button {
   background: rgba(0,212,255,0.06);
   border: 1px solid rgba(0,212,255,0.3);
   color: #00d4ff;
-  padding: 10px 16px;
+  padding: 10px 14px;
   font-family: 'Rajdhani', monospace;
-  font-size: 13px;
+  font-size: clamp(11px, 3vw, 13px);
   font-weight: 600;
   letter-spacing: 1px;
   cursor: pointer;
   border-radius: 4px;
   transition: all 0.2s;
   white-space: nowrap;
+  touch-action: manipulation;
 }
 
 button:hover:not(:disabled) {
@@ -165,16 +177,17 @@ button:disabled {
 }
 
 .file-label {
-  font-size: 12px;
+  font-size: clamp(11px, 3vw, 12px);
   font-weight: 600;
   letter-spacing: 1px;
-  padding: 7px 14px;
+  padding: 8px 14px;
   border: 1px solid rgba(0,212,255,0.3);
   border-radius: 4px;
   color: #00d4ff;
   cursor: pointer;
   text-align: center;
   transition: all 0.2s;
+  touch-action: manipulation;
 }
 
 .file-label:hover {
@@ -190,6 +203,7 @@ button:disabled {
   padding: 4px 8px;
   border: 1px solid rgba(0,212,255,0.1);
   border-radius: 4px;
+  word-break: break-all;
 }
 
 /* Scrollbar */
@@ -202,4 +216,36 @@ button:disabled {
 .messages::-webkit-scrollbar-thumb {
   background: rgba(0,212,255,0.2);
   border-radius: 2px;
+}
+
+/* Mobile specific */
+@media (max-width: 480px) {
+  body {
+    padding: 8px 0;
+    align-items: flex-start;
+  }
+
+  .container {
+    padding: 12px 10px;
+    gap: 8px;
+  }
+
+  .input-row {
+    flex-wrap: nowrap;
+  }
+
+  .input-row button {
+    padding: 10px 10px;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+
+  .messages {
+    max-height: 45vh;
+    min-height: 180px;
+  }
+
+  .video {
+    max-height: 180px;
+  }
 }
