@@ -5,6 +5,8 @@ function PiP({ onSend, messages, loading }) {
   const pipWindowRef = useRef(null)
   const [pipActive, setPipActive] = useState(false)
 
+  if (/Mobi|Android/i.test(navigator.userAgent)) return null
+
   async function openPiP() {
     if (!window.documentPictureInPicture) {
       alert("Picture-in-Picture is only supported in Chrome 116+")
@@ -18,7 +20,6 @@ function PiP({ onSend, messages, loading }) {
 
     pipWindowRef.current = pipWindow
 
-    // Copy styles into PiP window
     const style = pipWindow.document.createElement("style")
     style.textContent = `
       * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -110,7 +111,6 @@ function PiP({ onSend, messages, loading }) {
     `
     pipWindow.document.head.appendChild(style)
 
-    // Build UI
     pipWindow.document.body.innerHTML = `
       <h2>E M O</h2>
       <div class="messages" id="pip-messages"></div>
@@ -120,7 +120,6 @@ function PiP({ onSend, messages, loading }) {
       </div>
     `
 
-    // Render existing messages
     function renderMessages(msgs, isLoading) {
       const container = pipWindow.document.getElementById("pip-messages")
       if (!container) return
@@ -138,7 +137,6 @@ function PiP({ onSend, messages, loading }) {
 
     renderMessages(messages, loading)
 
-    // Send on button click
     pipWindow.document.getElementById("pip-send").addEventListener("click", () => {
       const val = pipWindow.document.getElementById("pip-input").value
       if (val.trim()) {
@@ -147,7 +145,6 @@ function PiP({ onSend, messages, loading }) {
       }
     })
 
-    // Send on Enter
     pipWindow.document.getElementById("pip-input").addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         const val = pipWindow.document.getElementById("pip-input").value
@@ -158,19 +155,15 @@ function PiP({ onSend, messages, loading }) {
       }
     })
 
-    // Update messages when main window updates
     pipWindow.addEventListener("pagehide", () => {
       setPipActive(false)
       pipWindowRef.current = null
     })
 
     setPipActive(true)
-
-    // Store render function for updates
     pipWindowRef.current.renderMessages = renderMessages
   }
 
-  // Update PiP messages when main window messages change
   if (pipWindowRef.current?.renderMessages) {
     pipWindowRef.current.renderMessages(messages, loading)
   }
