@@ -96,7 +96,9 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
         {!active ? (
           <>
             <button onClick={startCamera}>📷 Camera</button>
-            <button onClick={startScreen}>🖥️ Share Screen</button>
+            {!(/Mobi|Android/i.test(navigator.userAgent)) && (
+  <button onClick={startScreen}>🖥️ Share Screen</button>
+)}
           </>
         ) : (
           <button onClick={stop} style={{ borderColor: "rgba(255,60,80,0.4)", color: "#ff4455" }}>
