@@ -4,14 +4,23 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const [active, setActive] = useState(false)
-  const [mode, setMode] = useState("") // "camera" or "screen"
+  const [mode, setMode] = useState("")
+  const [facingMode, setFacingMode] = useState("user")
   const streamRef = useRef(null)
 
-  async function startCamera() {
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent)
+
+  async function startCamera(facing = "user") {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop())
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: facing }
+      })
       streamRef.current = stream
       setMode("camera")
+      setFacingMode(facing)
       setActive(true)
       setTimeout(() => {
         if (videoRef.current) {
@@ -22,6 +31,11 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
     } catch (err) {
       console.error("Camera error:", err)
     }
+  }
+
+  async function switchCamera() {
+    const newFacing = facingMode === "user" ? "environment" : "user"
+    await startCamera(newFacing)
   }
 
   async function startScreen() {
@@ -39,11 +53,7 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
           videoRef.current.play()
         }
       }, 100)
-
-      // Auto stop when user clicks "Stop sharing" in browser UI
-      stream.getVideoTracks()[0].onended = () => {
-        stop()
-      }
+      stream.getVideoTracks()[0].onended = () => stop()
     } catch (err) {
       console.error("Screen share error:", err)
     }
@@ -95,15 +105,22 @@ const Camera = forwardRef(function Camera({ onCapture }, ref) {
       <div className="cam-btns">
         {!active ? (
           <>
-            <button onClick={startCamera}>📷 Camera</button>
-            {!(/Mobi|Android/i.test(navigator.userAgent)) && (
-  <button onClick={startScreen}>🖥️ Share Screen</button>
-)}
+            <button onClick={() => startCamera("user")}>📷 Camera</button>
+            {!isMobile && (
+              <button onClick={startScreen}>🖥️ Share Screen</button>
+            )}
           </>
         ) : (
-          <button onClick={stop} style={{ borderColor: "rgba(255,60,80,0.4)", color: "#ff4455" }}>
-            ■ Stop {mode === "camera" ? "Camera" : "Screen"}
-          </button>
+          <>
+            {mode === "camera" && isMobile && (
+              <button onClick={switchCamera}>
+                {facingMode === "user" ? "🔄 Back Camera" : "🔄 Front Camera"}
+              </button>
+            )}
+            <button onClick={stop} style={{ borderColor: "rgba(255,60,80,0.4)", color: "#ff4455" }}>
+              ■ Stop {mode === "camera" ? "Camera" : "Screen"}
+            </button>
+          </>
         )}
       </div>
     </div>
